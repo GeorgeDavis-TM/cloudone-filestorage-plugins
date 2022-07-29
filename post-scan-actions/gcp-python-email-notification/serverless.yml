@@ -1,53 +1,52 @@
 service: cloudone-fss-gcp-email-notifications
+configValidationMode: error
 
 custom:
   defaultStage: prod
-  stages:
-    prod:
-      MAIL_FROM: <MAIL_FROM>
-      MAIL_TO: <MAIL_TO>
-      MAIL_SUBJECT: <MAIL_SUBJECT>
-      MAIL_SERVER: <MAIL_SERVER>
-      MAIL_LOCAL_HOST: <MAIL_LOCAL_HOST>
-      MAIL_FORCE_TLS: <MAIL_FORCE_TLS>
-      MAIL_DEBUG: <MAIL_DEBUG>
-      DEPLOYMENT_REGION: <GCP_DEPLOYMENT_REGION>
-      GCP_PROJECT_ID: <PROJECT_ID>
-      EVENT_TYPE: providers/cloud.pubsub/eventTypes/topic.publish
-      TRIGGER_RESOURCE: projects/<PROJECT_ID>/topics/<SCAN_RESULT_TOPIC_NAME>
+
+params:
+  prod:
+    MAIL_FROM: <MAIL_FROM>
+    MAIL_TO: <MAIL_TO>
+    MAIL_SUBJECT: <MAIL_SUBJECT>
+    MAIL_SERVER: <MAIL_SERVER>
+    MAIL_LOCAL_HOST: <MAIL_LOCAL_HOST>
+    MAIL_FORCE_TLS: <MAIL_FORCE_TLS>
+    MAIL_DEBUG: <MAIL_DEBUG>
+    DEPLOYMENT_REGION: <GCP_DEPLOYMENT_REGION>
+    GCP_PROJECT_ID: <PROJECT_ID>
+    EVENT_TYPE: providers/cloud.pubsub/eventTypes/topic.publish
+    TRIGGER_RESOURCE: projects/<PROJECT_ID>/topics/<SCAN_RESULT_TOPIC_NAME>
 
 provider:
   name: google
   stage: ${opt:stage, self:custom.defaultStage}
   runtime: python39
-  region: ${self:custom.stages.${opt:stage, self:custom.defaultStage}.DEPLOYMENT_REGION}
-  project: ${self:custom.stages.${opt:stage, self:custom.defaultStage}.GCP_PROJECT_ID}
+  region: ${param:DEPLOYMENT_REGION}
+  project: ${param:GCP_PROJECT_ID}
   environment:
-    MAIL_FROM: ${params.MAIL_FROM}
-    MAIL_TO: ${params.MAIL_TO}
-    MAIL_SUBJECT: ${params.MAIL_SUBJECT}
-    MAIL_SERVER: ${params.MAIL_SERVER}
-    MAIL_LOCAL_HOST: ${params.MAIL_LOCAL_HOST}
-    MAIL_FORCE_TLS: ${params.MAIL_FORCE_TLS}
-    MAIL_DEBUG: ${params.MAIL_DEBUG}
+    MAIL_FROM: ${param:MAIL_FROM}
+    MAIL_TO: ${param:MAIL_TO}
+    MAIL_SUBJECT: ${param:MAIL_SUBJECT}
+    MAIL_SERVER: ${param:MAIL_SERVER}
+    MAIL_LOCAL_HOST: ${param:MAIL_LOCAL_HOST}
+    MAIL_FORCE_TLS: ${param:MAIL_FORCE_TLS}
+    MAIL_DEBUG: ${param:MAIL_DEBUG}
 
 frameworkVersion: '3'
 plugins:
   - serverless-google-cloudfunctions
 
 package:
-  include:
-    - "!node_modules/**"
-    - "!docs/**"
-    - "!.git/**"
-  exclude:
-    - README.md
-    - .gitignore
+  patterns:
+    - '!node_modules/**'
+    - '!docs/**'
+    - '!README.md'
 
 functions:
   main:
     handler: main
     events:
       - event:
-          eventType: ${params.EVENT_TYPE}
-          resource: ${params.TRIGGER_RESOURCE}
+          eventType: ${param:EVENT_TYPE}
+          resource: ${param:TRIGGER_RESOURCE}
