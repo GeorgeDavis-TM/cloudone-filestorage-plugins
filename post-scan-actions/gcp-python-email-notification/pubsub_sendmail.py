@@ -45,8 +45,9 @@ def pubsub_sendmail(mailDict, context):
     import smtplib
     from email.message import EmailMessage
 
-    # Log the message ID and timestamp.
+    # try:
 
+    # Log the message ID and timestamp.
     print('BEGIN messageId {} published at {}'.format(context.event_id, context.timestamp))
 
     # Fetch environment variables and set to '' if they are not present.
@@ -64,7 +65,8 @@ def pubsub_sendmail(mailDict, context):
     # Fetch the pub/sub message and set to '' if not present.
 
     if mailMessageBody:
-        mailMessageBody = base64.b64decode(mailMessageBody).decode('utf-8')
+        # print(str(type(mailMessageBody)), str(mailMessageBody)) # type `str`
+        mailMessageBody = str(base64.b64decode(mailMessageBody)) #.decode('utf-8')
     else:
         mailMessageBody = ''
 
@@ -84,11 +86,15 @@ def pubsub_sendmail(mailDict, context):
 
     # Create EmailMessage object for eventual transmission.
 
+    print(str(type(mailMessageBody)), str(mailMessageBody))
+
     outboundMessage = EmailMessage()
     outboundMessage.set_content(mailMessageBody)
     outboundMessage['Subject'] = mailSubject
     outboundMessage['From'] = mailFrom
     outboundMessage['To'] = mailTo
+
+    print(str(type(outboundMessage)), str(outboundMessage))
 
     # You may need to customize this flow to support your mail relay configuration.
     # Examples may include authentication, encryption, etc.
@@ -111,3 +117,6 @@ def pubsub_sendmail(mailDict, context):
     # Log end of Cloud Function.
 
     print('END messageId {}'.format(context.event_id))
+
+    # except Exception as e:
+    #     raise Exception("Error: ", str(e))
