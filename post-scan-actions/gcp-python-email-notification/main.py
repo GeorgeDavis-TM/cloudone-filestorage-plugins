@@ -82,7 +82,7 @@ def main(event, context):
                         <p><b>Malware Name(s): </b>{malware}</p>
                         <p><b>Malware Type(s): </b>{type}</p>
                         <p><b>File URL: </b>{file_metadata_url}</p>
-                        </html></body></p>\
+                        </p></body></html>\
                         '''.format(
                             malware=str(finding.get('malware')),
                             type=str(finding.get('type')),
@@ -103,6 +103,4 @@ def main(event, context):
                     return
 
     except Exception as e:
-        print("Error: ", str(e))
-
-    print("Nothing done.")
+        raise Exception("Error: ", str(e))
